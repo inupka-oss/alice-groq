@@ -59,8 +59,8 @@ async def alice(request: Request):
             print("Ошибка Gemini:", e)
             answer = f"Ошибка: {str(e)[:200]}"
 
-    if len(answer) > 1000:
-        answer = answer[:1000]
+    if len(answer) > 900:
+        answer = answer[:900]
 
     return {
         "response": {
