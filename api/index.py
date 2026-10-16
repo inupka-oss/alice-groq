@@ -3,15 +3,15 @@ from fastapi import FastAPI, Request
 from openai import OpenAI
 from mangum import Mangum
 
-# Проверяем, есть ли ключ Gemini
-gemini_key = os.environ.get("GEMINI_API_KEY")
+# Ключ Groq
+groq_key = os.environ.get("GROQ_API_KEY")
 
-if gemini_key:
+if groq_key:
     client = OpenAI(
-        api_key=gemini_key,
-        base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
+        api_key=groq_key,
+        base_url="https://api.groq.com/openai/v1"
     )
-    MODEL = "gemini-3.5-flash-lite"
+    MODEL = "llama-3.1-8b-instant"
 else:
     client = None
     MODEL = None
@@ -23,7 +23,7 @@ app = FastAPI()
 def home():
     return {
         "status": "ok",
-        "gemini_configured": gemini_key is not None
+        "groq_configured": groq_key is not None
     }
 
 
@@ -35,7 +35,7 @@ async def alice(request: Request):
     if client is None:
         return {
             "response": {
-                "text": "Ключ Gemini не настроен.",
+                "text": "Ключ Groq не настроен.",
                 "end_session": False
             },
             "version": "1.0"
@@ -48,25 +48,15 @@ async def alice(request: Request):
             completion = client.chat.completions.create(
                 model=MODEL,
                 messages=[
-                    {"role": "system", "content": "Ты мой друг. Отвечай с юмором и матом, ОТВЕЧАЙ КРАТКО И БЫСТРО МАКСИМУМ 3 ПРЕДЛОЖЕНИЯ. БЕЗ РАЗДУМИЙ"},
+                    {"role": "system", "content": "Ты мой друг. Отвечай с юмором, кратко, максимум 3 предложения."},
                     {"role": "user", "content": user_text}
                 ],
                 temperature=0.7,
-                max_tokens=150,
-                extra_body={
-                    "extra_body": {
-                        "google": {
-                            "thinking_config": {
-                                "thinking_level": "minimal",
-                                "include_thoughts": False
-                            }
-                        }
-                    }
-                }
+                max_tokens=200
             )
             answer = completion.choices[0].message.content.strip()
         except Exception as e:
-            print("Ошибка Gemini:", e)
+            print("Ошибка Groq:", e)
             answer = f"Ошибка: {str(e)[:200]}"
 
     if len(answer) > 900:
