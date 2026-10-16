@@ -9,14 +9,15 @@ gemini_key = os.environ.get("GEMINI_API_KEY")
 if gemini_key:
     client = OpenAI(
         api_key=gemini_key,
-        base_url="https://generativelanguage.googleapis.com/v1beta/openai/"  # <-- Эндпоинт Gemini
+        base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
     )
-    MODEL = "models/gemini-2.5-flash-lite"
+    MODEL = "gemini-2.5-flash"
 else:
     client = None
     MODEL = None
 
 app = FastAPI()
+
 
 @app.get("/")
 def home():
@@ -24,6 +25,7 @@ def home():
         "status": "ok",
         "gemini_configured": gemini_key is not None
     }
+
 
 @app.post("/alice")
 async def alice(request: Request):
@@ -33,7 +35,7 @@ async def alice(request: Request):
     if client is None:
         return {
             "response": {
-                "text": "Ключ Gemini не настроен на сервере.",
+                "text": "Ключ Gemini не настроен.",
                 "end_session": False
             },
             "version": "1.0"
@@ -53,9 +55,9 @@ async def alice(request: Request):
                 max_tokens=200
             )
             answer = completion.choices[0].message.content.strip()
-                except Exception as e:
+        except Exception as e:
             print("Ошибка Gemini:", e)
-            answer = f"Ошибка: {str(e)[:200]}"
+            answer = "Извини, я не смогла ответить."
 
     if len(answer) > 900:
         answer = answer[:900]
@@ -67,5 +69,6 @@ async def alice(request: Request):
         },
         "version": "1.0"
     }
+
 
 handler = Mangum(app)
