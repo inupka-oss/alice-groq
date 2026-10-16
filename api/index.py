@@ -48,7 +48,7 @@ async def alice(request: Request):
             completion = client.chat.completions.create(
                 model=MODEL,
                 messages=[
-                    {"role": "system", "content": "Ты мой друг. Отвечай с юмороми матом, ОТВЕЧАЙ КРАТКО И БЫСТРО МАКСИМУМ 3 ПРЕДЛОЖЕНИЯ"},
+                    {"role": "system", "content": "Ты мой друг. Отвечай с юмороми матом, ОТВЕЧАЙ КРАТКО И БЫСТРО МАКСИМУМ 3 ПРЕДЛОЖЕНИЯ.БЕЗ РАЗДУМИЙ"},
                     {"role": "user", "content": user_text}
                 ],
                 temperature=0.7,
