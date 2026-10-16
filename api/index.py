@@ -52,7 +52,7 @@ async def alice(request: Request):
                     {"role": "user", "content": user_text}
                 ],
                 temperature=0.7,
-                max_tokens=200
+                max_tokens=150
             )
             answer = completion.choices[0].message.content.strip()
         except Exception as e:
