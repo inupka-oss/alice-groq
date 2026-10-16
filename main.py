@@ -13,20 +13,31 @@ app = FastAPI()
 def home():
     return {"status": "ok"}
 
+def make_response(text, end=False):
+    """Собираем ответ для Алисы в правильном формате"""
+    if len(text) > 900:
+        text = text[:900]
+    return {
+        "response": {
+            "text": text,
+            "tts": text,
+            "end_session": end
+        },
+        "version": "1.0"
+    }
+
 @app.post("/alice")
 async def alice(request: Request):
     data = await request.json()
-    user_text = data.get("request", {}).get("command", "")
+    user_text = data.get("request", {}).get("command", "").strip()
 
+    # Если Алиса просто проверяет связь или пользователь молчит
     if not user_text:
-        return {
-            "response": {
-                "text": "Я тебя не расслышала, повтори.",
-                "tts": "Я тебя не расслышала, повтори.",
-                "end_session": False
-            },
-            "version": "1.0"
-        }
+        return make_response("Привет! Спроси меня о чём-нибудь.")
+
+    # Если пользователь просит выйти
+    if user_text.lower() in ["выход", "стоп", "хватит", "пока"]:
+        return make_response("Пока! Обращайся ещё.", end=True)
 
     try:
         completion = client.chat.completions.create(
@@ -38,19 +49,9 @@ async def alice(request: Request):
             temperature=0.7,
             max_tokens=300
         )
-        answer = completion.choices[0].message.content
+        answer = completion.choices[0].message.content.strip()
     except Exception as e:
-        print("Ошибка:", e)
-        answer = "Прости, у меня что-то сломалось. Попробуй позже."
+        print("Ошибка Groq:", e)
+        answer = "Прости, у меня что-то сломалось. Попробуй ещё раз."
 
-    if len(answer) > 1000:
-        answer = answer[:1000]
-
-    return {
-        "response": {
-            "text": answer,
-            "tts": answer,
-            "end_session": False
-        },
-        "version": "1.0"
-    }
+    return make_response(answer)
