@@ -3,7 +3,6 @@ from fastapi import FastAPI, Request
 from openai import OpenAI
 from mangum import Mangum
 
-# Ключ Groq
 groq_key = os.environ.get("GROQ_API_KEY")
 
 if groq_key:
@@ -11,7 +10,7 @@ if groq_key:
         api_key=groq_key,
         base_url="https://api.groq.com/openai/v1"
     )
-    MODEL = "llama-3.1-8b-instant"
+    MODEL = "openai/gpt-oss-20b"
 else:
     client = None
     MODEL = None
@@ -34,10 +33,7 @@ async def alice(request: Request):
 
     if client is None:
         return {
-            "response": {
-                "text": "Ключ Groq не настроен.",
-                "end_session": False
-            },
+            "response": {"text": "Ключ Groq не настроен.", "end_session": False},
             "version": "1.0"
         }
 
@@ -48,7 +44,7 @@ async def alice(request: Request):
             completion = client.chat.completions.create(
                 model=MODEL,
                 messages=[
-                    {"role": "system", "content": "Ты мой друг. Отвечай с юмором, кратко, максимум 3 предложения."},
+                    {"role": "system", "content": "Ты мой друг. Отвечай кратко, максимум 3 предложения."},
                     {"role": "user", "content": user_text}
                 ],
                 temperature=0.7,
@@ -63,10 +59,7 @@ async def alice(request: Request):
         answer = answer[:900]
 
     return {
-        "response": {
-            "text": answer,
-            "end_session": False
-        },
+        "response": {"text": answer, "end_session": False},
         "version": "1.0"
     }
 
