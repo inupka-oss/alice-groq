@@ -11,7 +11,7 @@ if gemini_key:
         api_key=gemini_key,
         base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
     )
-    MODEL = "gemini-2.5-flash"
+        MODEL = "gemini-3.8-flash"
 else:
     client = None
     MODEL = None
