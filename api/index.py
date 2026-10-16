@@ -44,11 +44,11 @@ async def alice(request: Request):
             completion = client.chat.completions.create(
                 model=MODEL,
                 messages=[
-                    {"role": "system", "content": "Ты мой друг. Отвечай кратко, максимум 3 предложения."},
+                    {"role": "system", "content": "Ты мой друг, так что давай с матами и весело. Отвечай кратко, максимум 3 предложения."},
                     {"role": "user", "content": user_text}
                 ],
                 temperature=0.7,
-                max_tokens=200
+                max_tokens=350
             )
             answer = completion.choices[0].message.content.strip()
         except Exception as e:
