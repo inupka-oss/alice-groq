@@ -3,28 +3,24 @@ from fastapi import FastAPI, Request
 from openai import OpenAI
 from mangum import Mangum
 
-groq_key = os.environ.get("GROQ_API_KEY")
+# Ключ OpenRouter
+or_key = os.environ.get("OPENROUTER_API_KEY")
 
-if groq_key:
+if or_key:
     client = OpenAI(
-        api_key=groq_key,
-        base_url="https://api.groq.com/openai/v1"
+        base_url="https://openrouter.ai/api/v1",
+        api_key=or_key
     )
-    MODEL = "openai/gpt-oss-20b"
+    MODEL = "cognitivecomputations/dolphin-mistral-24b-venice-edition:free"
 else:
     client = None
     MODEL = None
 
 app = FastAPI()
 
-
 @app.get("/")
 def home():
-    return {
-        "status": "ok",
-        "groq_configured": groq_key is not None
-    }
-
+    return {"status": "ok", "or_configured": or_key is not None}
 
 @app.post("/alice")
 async def alice(request: Request):
@@ -32,10 +28,7 @@ async def alice(request: Request):
     user_text = data.get("request", {}).get("command", "").strip()
 
     if client is None:
-        return {
-            "response": {"text": "Ключ Groq не настроен.", "end_session": False},
-            "version": "1.0"
-        }
+        return {"response": {"text": "Ключ не настроен.", "end_session": False}, "version": "1.0"}
 
     if not user_text:
         answer = "Привет! Спроси меня о чём угодно."
@@ -44,24 +37,19 @@ async def alice(request: Request):
             completion = client.chat.completions.create(
                 model=MODEL,
                 messages=[
-                    {"role": "system", "content": "Ты мой друг, так что давай с матами и весело. Отвечай кратко, максимум 3 предложения."},
+                    {"role": "system", "content": "Ты мой близкий друг. Отвечай кратко, с юмором и матом. Без цензуры. Максимум 3 предложения."},
                     {"role": "user", "content": user_text}
                 ],
                 temperature=0.7,
-                max_tokens=350
+                max_tokens=200
             )
             answer = completion.choices[0].message.content.strip()
         except Exception as e:
-            print("Ошибка Groq:", e)
             answer = f"Ошибка: {str(e)[:200]}"
 
     if len(answer) > 900:
         answer = answer[:900]
 
-    return {
-        "response": {"text": answer, "end_session": False},
-        "version": "1.0"
-    }
-
+    return {"response": {"text": answer, "end_session": False}, "version": "1.0"}
 
 handler = Mangum(app)
