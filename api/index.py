@@ -53,9 +53,9 @@ async def alice(request: Request):
                 max_tokens=200
             )
             answer = completion.choices[0].message.content.strip()
-        except Exception as e:
+                except Exception as e:
             print("Ошибка Gemini:", e)
-            answer = "Извини, я не смогла ответить."
+            answer = f"Ошибка: {str(e)[:200]}"
 
     if len(answer) > 900:
         answer = answer[:900]
