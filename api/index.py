@@ -11,7 +11,7 @@ if gemini_key:
         api_key=gemini_key,
         base_url="https://generativelanguage.googleapis.com/v1beta/openai/"  # <-- Эндпоинт Gemini
     )
-    MODEL = "gemini-2.5-flash"  # <-- Актуальная модель
+    MODEL = "gemini-1.5-flash"  # <-- Актуальная модель
 else:
     client = None
     MODEL = None
